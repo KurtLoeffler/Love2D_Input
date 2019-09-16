@@ -1,5 +1,5 @@
 # Love2D_Input
-An input handling library for Love2D. Supports event or polling based interactions.
+An input handling library for Love2D. Supports event or polling based interactions. This is more geared towards application input handling, not so much games. There are probably better libraries for dealing with game input.
 
 ## Example usage
 ```lua
