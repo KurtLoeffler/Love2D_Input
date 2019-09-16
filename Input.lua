@@ -135,7 +135,9 @@ end
 
 function Input:get(action)
 	if type(action) == "string" then
-		return self:get(self:getAction(action))
+		local actionString = action
+		action = self:getAction(action)
+		assert(action, "action not found \""..actionString.."\"")
 	end
 	assert(type(action) == "table")
 
@@ -291,7 +293,7 @@ function Input:onUpdate()
 	for _, action in pairs(self.actions) do
 		if self:evaluateFilters(action) then
 			local v1, v2 = self:evaluateTriggers(action)
-			if self:evaluateTriggers(action) then
+			if v1 then
 				self:invokeEvents(action, v1, v2)
 			end
 		end
