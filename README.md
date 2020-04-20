@@ -4,33 +4,37 @@ An input handling library for Love2D. Supports event or polling based interactio
 ## Example usage
 ```lua
 
-Input = require("Input.Input")
+Input = require("Input")
 
-input = Input() --create an input handler instance.
-
-input:addAction{
-    name = "pan",
-    triggers = {
-        --triggers when mouse is moved while mouse button 3 OR space bar are held down.
-        all = true, --require all sibling conditions to be true. default is "any".
-        "mouse:delta", --condition 1, only true when the mouse is moved...
-        --...as the first condition to evaluate true, mouse delta x/y values will be passed to events and polling returns.
+input = Input { --create an input handler instance with an action.
+    actions = {
         {
-            --nested trigger 
-            down = true, --trigger when while the following conditions are held down.
-            "mouse:3", --mouse button 3 is held down.
-            "space" --OR space bar is held down.
+            name = "pan",
+            triggers = {
+                --triggers when mouse is moved while mouse button 3 OR space bar are held down.
+                all = true, --require all sibling conditions to be true. default is "any".
+                "mouse:delta", --condition 1, only true when the mouse is moved...
+                --...as the first condition to evaluate true, mouse delta x/y values will be passed to events and polling returns.
+                {
+                    --nested trigger 
+                    down = true, --trigger when while the following conditions are held down.
+                    "mouse:3", --mouse button 3 is held down.
+                    "space" --OR space bar is held down.
+                }
+            },
+            events = {
+                --events are called once per frame when triggers evaluate true.
+                function(scrollX, scrollY)
+                    --note scrollY represents scroll wheel movement.
+                    print("panning mouse delta:", scrollX, scrollY)
+                end
+            }
         }
-    },
-    events = {
-        --events are called once per frame when triggers evaluate true.
-        function(scrollX, scrollY)
-            --note scrollY represents scroll wheel movement.
-            print("panning mouse delta:", scrollX, scrollY)
-        end
     }
 }
-input:addAction{
+
+--add some more actions.
+input:addAction {
     name = "zoom",
     triggers = {
         --triggers when mouse scroll wheel is moved.
@@ -42,7 +46,7 @@ input:addAction{
         end
     }
 }
-input:addAction{
+input:addAction {
     name = "save",
     triggers = {
         --triggers when "s" key is pressed AND any "ctrl" key is also held down.
@@ -102,6 +106,9 @@ function love.update(deltaTime)
     --additional update logic
 
     local deltaX, deltaY = input:get("pan") --poll the "pan" action.
+    if input:get("save") then
+        print("polling the save action.")
+    end
 end
 
 function love.draw()
@@ -109,6 +116,3 @@ function love.draw()
     input:onEndFrame()
 end
 ```
-
-## Requirements
-**middleclass** is required with a global `class()` defined at the time of import.
