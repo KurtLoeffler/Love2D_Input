@@ -1,8 +1,16 @@
-local Input = class("Input")
+local Input = {}
+setmetatable(Input, Input)
+Input.__index = Input
 
-function Input:initialize()
+function Input:__call(options)
+	local instance = setmetatable({}, Input)
+	instance:initialize(options)
+	return instance
+end
+
+function Input:initialize(options)
 	self.actions = {}
-
+	
 	self.pressedMouseButtons = {}
 	self.downMouseButtons = {}
 	self.releasedMouseButtons = {}
@@ -16,6 +24,17 @@ function Input:initialize()
 	self.mouseScroll = {x = 0, y = 0}
 
 	self.mouseScale = 1
+
+	if type(options) == "table" then
+		if type(options.mouseScale) == "number" then
+			self.mouseScale = options.mouseScale
+		end
+		if type(options.actions) == "table" then
+			for _, action in ipairs(options.actions) do
+				self:addAction(action)
+			end
+		end
+	end
 end
 
 function Input:addAction(action)
@@ -69,7 +88,7 @@ function Input:evaluateTriggerTable(triggerTable)
 			v1, v2 = self:evaluateTriggerTable(v)
 		elseif vType == "function" then
 			local success
-			success, v1, v2 = pcall(v)
+			success, v1, v2 = pcall(v, self)
 			if not success then
 				print("action trigger error:\n"..v1)
 				v1 = nil
